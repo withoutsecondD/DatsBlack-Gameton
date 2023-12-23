@@ -1,7 +1,5 @@
-﻿using DTLib.Extensions;
-using Gameton.DataModels.Map;
+﻿using Gameton.DataModels.Map;
 using Gameton.DataModels.Scan;
-using File = DTLib.Filesystem.File;
 
 namespace Gameton.Game;
 
@@ -16,23 +14,26 @@ public class GameMap
     public int Width;
     public int Height;
 
-    public static async Task<GameMap> CreateAsync(MapData mapData, List<MyShip> allies, List<ShipBase> enemies) =>
+    public static async Task<GameMap> CreateAsync(MapData mapData) =>
         await Task.Run(() =>
         {
             var gameMap = new GameMap(mapData.width, mapData.height);
             gameMap.FillWithBlankSPace();
             gameMap.DrawIslands(mapData.islands);
-            gameMap.DrawAllies(allies);
-            gameMap.DrawEnemies(enemies);
             return gameMap;
         });
 
-    private GameMap(int width, int height)
+    public GameMap Copy() => new(Data, Width, Height);
+    
+    private GameMap(GameMapCell[,] data, int width, int height)
     {
-        Data = new GameMapCell[height, width];;
+        Data = data;
         Width = width;
         Height = height;
     }
+    
+    private GameMap(int width, int height) : this(new GameMapCell[height, width], width, height)
+    { }
 
     private void FillWithBlankSPace()
     {
@@ -63,13 +64,13 @@ public class GameMap
         }
     }
 
-    private void DrawAllies(List<MyShip> allies)
+    public void DrawAllies(List<MyShip> allies)
     {
         foreach (var ship in allies) 
             DrawShip(ship, GameMapCell.Ally);
     }
 
-    private void DrawEnemies(List<ShipBase> enemies)
+    public void DrawEnemies(List<ShipBase> enemies)
     {
         foreach (var ship in enemies) 
             DrawShip(ship, GameMapCell.Enemy);

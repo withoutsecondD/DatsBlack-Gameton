@@ -1,20 +1,37 @@
 ﻿using System.Linq;
-using DTLib.Logging;
+using Gameton.DataModels.Map;
 using Gameton.DataModels.Scan;
 using Gameton.DataModels.ShipCommand;
 using Gameton.Game;
-using static Gameton.Program;
 
 namespace Gameton;
 
 public class GameManager
 {
+    private GametonClient Client;
+    private ILogger Logger;
     private int _gameLoopRunning = 1;
+    #nullable disable
+    private GameMap _mapWithIslandsOnly;
+    #nullable enable
+
+    public event Action<GameState>? OnUpdate;
+
+    public GameManager(GametonClient client, ILogger logger)
+    {
+        Client = client;
+        Logger = logger;
+    }
     
     public async void StartAsync()
     {
         try
         {
+            var mapData = await Client.TryRequestMap();
+            if (mapData is null)
+                throw new Exception("can't get MapData");
+            _mapWithIslandsOnly = await GameMap.CreateAsync(mapData);
+            
             // atomic read
             while (Interlocked.CompareExchange(ref _gameLoopRunning, 1, 1) == 1)
             {
@@ -45,14 +62,15 @@ public class GameManager
         ScanResponse scan = await Client.TryRequestScanAsync()
             ?? throw new Exception("scan is null");
 
-        List<MyShipEntity> myShipsEntities = scan.scan.myShips.Select(s => new MyShipEntity(s)).ToList();
-        List<ShipBase> enemyShips = scan.scan.enemyShips;
+        var gameState = new GameState(scan, _mapWithIslandsOnly);
         
-        ShipsAIUpdate(myShipsEntities, enemyShips);
+        ShipsAIUpdate(gameState.myShipsEntities, gameState.enemyShips);
+        
+        OnUpdate?.Invoke(gameState);
 
         var shipCommandRequest = new ShipCommandRequest();
         shipCommandRequest.ships = new List<ShipCommand>();
-        foreach (var myShip in myShipsEntities)
+        foreach (var myShip in gameState.myShipsEntities)
         {
             if(myShip.ShipCommand is not null)
                 shipCommandRequest.ships.Add(myShip.ShipCommand);

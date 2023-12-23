@@ -1,5 +1,13 @@
-﻿using System.Net.Http.Json;
-using DTLib.Logging;
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Net.Http;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using System.Text;
+global using DTLib.Logging;
+global using DTLib.Filesystem;
+global using DTLib.Extensions;
+using System.Net.Http.Json;
 using Gameton.DataModels;
 using Gameton.DataModels.LongScan;
 using Gameton.DataModels.Map;
