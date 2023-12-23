@@ -1,11 +1,11 @@
-﻿global using System;
+global using System;
 global using System.Net.Http;
 global using System.Threading;
 global using System.Threading.Tasks;
 
 namespace Gameton;
 
-public static class MainClass
+public static class Program
 {
     public static void Main()
     {
