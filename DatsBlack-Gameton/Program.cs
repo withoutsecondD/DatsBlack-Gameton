@@ -3,8 +3,12 @@ global using System.Collections.Generic;
 global using System.Net.Http;
 global using System.Threading;
 global using System.Threading.Tasks;
-using System.Text;
+global using System.Text;
 using DTLib.Logging;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using DTLib.Filesystem;
+using Gameton.DataModels.Map;
 
 namespace Gameton;
 
@@ -27,6 +31,10 @@ public static class Program
             throw new Exception("can't get value of environment variable GAMETON_TOKEN");
         var client = new GametonClient(token, Logger);
         var longScan = await client.TryRequestLongScanAsync(100, 200);
-        return;
+        
+        string jsonString = File.ReadAllText("map.json");
+        MapResponse map = JsonSerializer.Deserialize<MapResponse>(jsonString)!;
+
+        MapRenderer.Render(map);
     }
 }
