@@ -1,4 +1,6 @@
-﻿
+﻿using System.Text.Json.Serialization;
+using DTLib.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace Gameton;
 
@@ -22,19 +24,28 @@ public class LoggingHttpHandler : DelegatingHandler
     public LoggingHttpHandler(HttpMessageHandler innerHandler) : base(innerHandler)
     { }
 
-    public LoggingHttpHandler() : base()
+    public LoggingHttpHandler()
     { }
+
+    public ILogger Logger = new CompositeLogger(
+            new ConsoleLogger(),
+            new FileLogger("logs", "gameton")
+        );
     
     void LogHttpRequest(HttpRequestMessage req)
     {
-        // Console.WriteLine($"REQUEST {req.Method} to {req.RequestUri}: " +
-        //                   req.Content?.ReadAsStringAsync().GetAwaiter().GetResult());
+        string? reqContent = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
+        string prettifiedJson = reqContent == null ? "null" : JToken.Parse(reqContent).ToString();
+        string message = $"{req.Method} to {req.RequestUri}: {prettifiedJson}";
+        Logger.LogDebug($"REQUEST", message);
     }
 
     void LogHttpResponse(HttpResponseMessage res)
     {
-        // Console.WriteLine($"RESPONSE {res.StatusCode} ({(int)res.StatusCode}) from {res.RequestMessage?.RequestUri}: " +
-        //                   res.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+        string? resContent = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        string prettifiedJson = JToken.Parse(resContent).ToString();
+        string message = $"{res.StatusCode} ({(int)res.StatusCode}): {prettifiedJson}";
+        Logger.LogDebug($"RESPONSE", message);
     }
 
     protected override HttpResponseMessage Send(HttpRequestMessage req, CancellationToken cancellationToken)
