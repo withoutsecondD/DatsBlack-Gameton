@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
 namespace Gameton.DataModels.Scan;
-public class ScanResponse
+#nullable disable
+public record ScanResponse : ResponseBase
 {
-    [JsonRequired] public bool success { get; set; }
-    [JsonRequired] public Scan? scan { get; set; }
+    [JsonRequired] public Scan scan { get; set; }
 }

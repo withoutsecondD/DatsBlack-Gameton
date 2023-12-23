@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Gameton.DataModels.Scan;
 
-public class MyShip : ShipBase
+public record MyShip : ShipBase
 {
     [JsonRequired] public int id { get; set; }
     [JsonRequired] public int maxSpeed { get; set; }

@@ -4,7 +4,7 @@ using Gameton.DataModels.Enum;
 namespace Gameton.DataModels.Scan;
 #nullable disable
 
-public class ShipBase
+public record ShipBase
 {
     [JsonRequired] public int x { get; set; }
     [JsonRequired] public int y { get; set; }
