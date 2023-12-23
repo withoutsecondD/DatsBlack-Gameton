@@ -2,6 +2,8 @@
 using System.Text.Json.Serialization;
 using DTLib.Logging;
 using Gameton.DataModels.LongScan;
+using Gameton.DataModels.Scan;
+using Gameton.DataModels.ShipCommand;
 
 namespace Gameton;
 
@@ -31,7 +33,7 @@ public class GametonClient
         throw new NullReferenceException($"POST {requestUrl} responded with null");
     }
     
-    public async Task<TResponse> GetAsync<TResponse, TRequest>(string requestUrl)
+    public async Task<TResponse> GetAsync<TResponse>(string requestUrl)
     {
         var response = await _http.GetAsync(requestUrl);
         TResponse? responseData = await response.Content.ReadFromJsonAsync<TResponse>();
@@ -56,6 +58,26 @@ public class GametonClient
         if (response.errors != null)
             foreach (var e in response.errors)
                 _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
+        return null;
+    }
+
+    public async Task<ShipCommandResponse?> TryRequestShipCommand(ShipCommandRequest request)
+    {
+        var response = await PostAsync<ShipCommandResponse, ShipCommandRequest>("shipCommand", request);
+        if (response.success) 
+            return response;
+        
+        if (response.errors != null)
+            foreach (var e in response.errors)
+                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
+        return null;
+    }
+    
+    public async Task<ScanResponse?> RequestScanAsync()
+    {
+        var response = await GetAsync<ScanResponse>("scan");
+        if (response.success) 
+            return response;
         return null;
     }
 }
