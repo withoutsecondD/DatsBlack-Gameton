@@ -1,12 +1,15 @@
-namespace Gameton;
+using System.Text.Json.Serialization;
+
+namespace Gameton.DataModels.Scan;
+#nullable disable
 
 public class EnemyShip
 {
-    public int x { get; set; }
-    public int y { get; set; }
-    public int hp { get; set; }
-    public int maxHp { get; set; }
-    public int size { get; set; }
-    public String direction { get; set; }
-    public int speed { get; set; }
+    [JsonRequired] public int x { get; set; }
+    [JsonRequired] public int y { get; set; }
+    [JsonRequired] public int hp { get; set; }
+    [JsonRequired] public int maxHp { get; set; }
+    [JsonRequired] public int size { get; set; }
+    [JsonRequired] public string direction { get; set; }
+    [JsonRequired] public int speed { get; set; }
 }

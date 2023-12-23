@@ -1,8 +1,11 @@
-﻿namespace Gameton;
+﻿using System.Text.Json.Serialization;
+
+namespace Gameton.DataModels.ShipCommand;
+#nullable disable
 
 public class ShipCommand {
-    public int id { get; set; }
-    public int changeSpeed { get; set; }
-    public int rotate { get; set; }
-    public CannonShoot cannonShoot { get; set; }
+    [JsonRequired] public int id { get; set; }
+    [JsonRequired] public int changeSpeed { get; set; }
+    [JsonRequired] public int rotate { get; set; }
+    [JsonRequired] public CannonShoot cannonShoot { get; set; }
 }

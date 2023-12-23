@@ -1,7 +1,9 @@
-namespace Gameton;
+using System.Text.Json.Serialization;
 
+namespace Gameton.DataModels.Scan;
+#nullable disable
 public class ScanResponse
 {
-    public bool success { get; set; }
-    public Scan scan { get; set; }
+    [JsonRequired] public bool success { get; set; }
+    [JsonRequired] public Scan scan { get; set; }
 }

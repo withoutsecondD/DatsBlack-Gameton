@@ -1,9 +1,12 @@
-namespace Gameton;
+using System.Text.Json.Serialization;
+
+namespace Gameton.DataModels.Scan;
+#nullable disable
 
 public class Scan
 {
-    public List<Ship> myShips { get; set; }
-    public List<EnemyShip> enemyShips { get; set; }
-    public Zone zone { get; set; }
-    public int tick { get; set; }
+    [JsonRequired] public List<Ship> myShips { get; set; }
+    [JsonRequired] public List<EnemyShip> enemyShips { get; set; }
+    [JsonRequired] public Zone zone { get; set; }
+    [JsonRequired] public int tick { get; set; }
 }

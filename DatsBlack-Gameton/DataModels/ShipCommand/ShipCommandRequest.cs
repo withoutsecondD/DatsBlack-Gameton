@@ -1,5 +1,8 @@
-﻿namespace Gameton;
+﻿using System.Text.Json.Serialization;
+
+namespace Gameton.DataModels.ShipCommand;
+#nullable disable
 
 public class ShipCommandRequest {
-    public List<ShipCommand> ships { get; set; }
+    [JsonRequired] public List<ShipCommand> ships { get; set; }
 }

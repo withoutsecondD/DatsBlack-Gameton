@@ -1,7 +1,10 @@
-﻿namespace Gameton;
+﻿using System.Text.Json.Serialization;
+
+namespace Gameton.DataModels.LongScan;
+#nullable disable
 
 public class LongScanResponse {
-    public int tick { get; set; }
-    public bool success { get; set; }
-    public List<ResponseError> errors { get; set; }
+    [JsonRequired] public int tick { get; set; }
+    [JsonRequired] public bool success { get; set; }
+    [JsonRequired] public List<ResponseError> errors { get; set; }
 }

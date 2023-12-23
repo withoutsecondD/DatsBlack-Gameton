@@ -1,5 +1,8 @@
-﻿namespace Gameton; 
+﻿using System.Text.Json.Serialization;
+
+namespace Gameton.DataModels; 
+#nullable disable
 
 public class ResponseError {
-    public string message { get; set; }
+    [JsonRequired] public string message { get; set; }
 }

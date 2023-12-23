@@ -1,21 +1,24 @@
-namespace Gameton;
+using System.Text.Json.Serialization;
+
+namespace Gameton.DataModels.Scan;
+#nullable disable
 
 public class Ship
 {
-    public int id { get; set; }
-    public int x { get; set; }
-    public int y { get; set; }
-    public int size { get; set; }
-    public int hp { get; set; }
-    public int maxHp { get; set; }
-    public String direction { get; set; }
-    public int speed { get; set; }
-    public int maxSpeed { get; set; }
-    public int minSpeed { get; set; }
-    public int maxChangeSpeed { get; set; }
-    public int cannonCooldown { get; set; }
-    public int cannonCooldownLeft { get; set; }
-    public int cannonRadius { get; set; }
-    public int scanRadius { get; set; }
-    public int cannonShootSuccessCount { get; set; }
+    [JsonRequired] public int id { get; set; }
+    [JsonRequired] public int x { get; set; }
+    [JsonRequired] public int y { get; set; }
+    [JsonRequired] public int size { get; set; }
+    [JsonRequired] public int hp { get; set; }
+    [JsonRequired] public int maxHp { get; set; }
+    [JsonRequired] public string direction { get; set; }
+    [JsonRequired] public int speed { get; set; }
+    [JsonRequired] public int maxSpeed { get; set; }
+    [JsonRequired] public int minSpeed { get; set; }
+    [JsonRequired] public int maxChangeSpeed { get; set; }
+    [JsonRequired] public int cannonCooldown { get; set; }
+    [JsonRequired] public int cannonCooldownLeft { get; set; }
+    [JsonRequired] public int cannonRadius { get; set; }
+    [JsonRequired] public int scanRadius { get; set; }
+    [JsonRequired] public int cannonShootSuccessCount { get; set; }
 }
