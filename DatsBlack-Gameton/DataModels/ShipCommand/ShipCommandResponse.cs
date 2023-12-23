@@ -2,8 +2,6 @@
 
 namespace Gameton.DataModels.ShipCommand;
 
-public class ShipCommandResponse {
+public record ShipCommandResponse : ResponseBase {
     [JsonRequired] public int tick { get; set; }
-    [JsonRequired] public bool success { get; set; }
-    [JsonRequired] public List<ResponseError>? errors { get; set; }
 }

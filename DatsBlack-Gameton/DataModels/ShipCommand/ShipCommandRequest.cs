@@ -3,6 +3,6 @@
 namespace Gameton.DataModels.ShipCommand;
 #nullable disable
 
-public class ShipCommandRequest {
+public record ShipCommandRequest {
     [JsonRequired] public List<ShipCommand> ships { get; set; }
 }

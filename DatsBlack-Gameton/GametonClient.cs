@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using DTLib.Logging;
 using Gameton.DataModels.LongScan;
+using Gameton.DataModels.Map;
 using Gameton.DataModels.Scan;
 using Gameton.DataModels.ShipCommand;
 
@@ -73,11 +74,31 @@ public class GametonClient
         return null;
     }
     
-    public async Task<ScanResponse?> RequestScanAsync()
+    public async Task<ScanResponse?> TryRequestScanAsync()
     {
         var response = await GetAsync<ScanResponse>("scan");
         if (response.success) 
             return response;
+        
+        if (response.errors != null)
+            foreach (var e in response.errors)
+                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
+        return null;
+    }
+
+    public async Task<MapData?> RequestMap()
+    {
+        var response = await GetAsync<MapResponse>("map");
+        
+        if (response.success)
+        {
+            MapData mapData = await GetAsync<MapData>(response.mapUrl);
+            return mapData;
+        }
+        
+        if (response.errors != null)
+            foreach (var e in response.errors)
+                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
         return null;
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Gameton.DataModels; 
+namespace Gameton.DataModels;
 
-public record AuthorizationResponse {
+public record ResponseBase
+{
     [JsonRequired] public bool success { get; set; }
     [JsonRequired] public List<ResponseError>? errors { get; set; }
 }

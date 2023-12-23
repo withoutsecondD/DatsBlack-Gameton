@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Gameton.DataModels.Scan;
 
-public class Scan
+public record Scan
 {
     [JsonRequired] public int tick { get; set; }
     #nullable disable
