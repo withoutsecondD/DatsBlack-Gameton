@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using DTLib.Logging;
+using Gameton.DataModels;
 using Gameton.DataModels.LongScan;
 using Gameton.DataModels.Map;
 using Gameton.DataModels.Scan;
@@ -17,10 +17,8 @@ public class GametonClient
     public GametonClient(string token, ILogger logger)
     {
         _logger = logger;
-        _http = new HttpClient(new LoggingHttpHandler(_logger))
-        {
-            BaseAddress = new Uri(base_url)
-        };
+        _http = new HttpClient(new LoggingHttpHandler(_logger));
+        _http.BaseAddress = new Uri(base_url);
         _http.DefaultRequestHeaders.Add("X-API-Key", token);
     }
 
@@ -31,6 +29,7 @@ public class GametonClient
         TResponse? responseData = await response.Content.ReadFromJsonAsync<TResponse>();
         if (responseData != null)
             return responseData;
+        
         throw new NullReferenceException($"POST {requestUrl} responded with null");
     }
     
@@ -40,11 +39,20 @@ public class GametonClient
         TResponse? responseData = await response.Content.ReadFromJsonAsync<TResponse>();
         if (responseData != null)
             return responseData;
+        
         throw new NullReferenceException($"GET {requestUrl} responded with null");
+    }
+
+    private void LogResponseErrors(ResponseBase response)
+    {
+        if (response.errors != null)
+            foreach (var e in response.errors)
+                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
     }
     
     /// <summary>
     /// Requests long scan with radius 60 on specified point. Has duration 15 ticks.
+    /// Ships found by long scan will be visible by regular scan.
     /// </summary>
     /// <param name="x">coordinate of long scan center</param>
     /// <param name="y">coordinate of long scan center</param>
@@ -53,52 +61,62 @@ public class GametonClient
     {
         var request = new LongScanRequest { x = x, y = y };
         var response = await PostAsync<LongScanResponse, LongScanRequest>("longScan", request);
-        if (response.success) 
-            return response;
-
-        if (response.errors != null)
-            foreach (var e in response.errors)
-                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
-        return null;
+        LogResponseErrors(response);
+        return response.success ? response : null;
     }
 
+    /// <summary>
+    /// Sends commands to ships
+    /// </summary>
+    /// <param name="request">collection of ship commands</param>
+    /// <returns>ShipCommandResponse if commands were valid, otherwise null</returns>
     public async Task<ShipCommandResponse?> TryRequestShipCommand(ShipCommandRequest request)
     {
         var response = await PostAsync<ShipCommandResponse, ShipCommandRequest>("shipCommand", request);
-        if (response.success) 
-            return response;
-        
-        if (response.errors != null)
-            foreach (var e in response.errors)
-                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
-        return null;
+        LogResponseErrors(response);
+        return response.success ? response : null;
     }
     
+    /// <summary>
+    /// Requests current game situation: your ships, spotted enemy ships, battle royal zone info
+    /// </summary>
+    /// <returns>ScanResponse or null on error</returns>
     public async Task<ScanResponse?> TryRequestScanAsync()
     {
         var response = await GetAsync<ScanResponse>("scan");
-        if (response.success) 
-            return response;
-        
-        if (response.errors != null)
-            foreach (var e in response.errors)
-                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
-        return null;
+        LogResponseErrors(response);
+        return response.success ? response : null;
     }
 
-    public async Task<MapData?> RequestMap()
+    /// <summary>
+    /// Requests map of isles
+    /// </summary>
+    /// <returns>MapData or null on error</returns>
+    public async Task<MapData?> TryRequestMap()
     {
         var response = await GetAsync<MapResponse>("map");
-        
-        if (response.success)
-        {
-            MapData mapData = await GetAsync<MapData>(response.mapUrl);
-            return mapData;
-        }
-        
-        if (response.errors != null)
-            foreach (var e in response.errors)
-                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
-        return null;
+        LogResponseErrors(response);
+        return response.success ? await GetAsync<MapData>(response.mapUrl) : null;
+    }
+
+    public async Task<bool> TryRegisterOnDeathmatch()
+    {
+        var response = await GetAsync<ResponseBase>("deathMatch/registration");
+        LogResponseErrors(response);
+        return response.success;
+    }
+    
+    public async Task<bool> TryExitDeathmatch()
+    {
+        var response = await GetAsync<ResponseBase>("deathMatch/exitBattle");
+        LogResponseErrors(response);
+        return response.success;
+    }
+    
+    public async Task<bool> TryRegisterOnBattleRoyal()
+    {
+        var response = await GetAsync<ResponseBase>("royalBattle/registration");
+        LogResponseErrors(response);
+        return response.success;
     }
 }
