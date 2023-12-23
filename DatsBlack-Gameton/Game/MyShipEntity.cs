@@ -1,82 +1,20 @@
-﻿using Gameton.DataModels.Enum;
+﻿using Gameton.DataModels;
 using Gameton.DataModels.Scan;
 using Gameton.DataModels.ShipCommand;
 
 namespace Gameton.Game; 
 
-public class MyShipEntity : MyShip {
-    public ShipCommand ShipCommand;
-
-    public void MoveTo(int enemyX, int enemyY) {
-        if (Enum.Parse<Direction>(direction) == Direction.south || Enum.Parse<Direction>(direction) == Direction.north) {
-            if (enemyY - y > 5)
-                ChangeSpeed(5);
-            else
-                ChangeSpeed(enemyY - y - size);
-        }
-        else {
-            if (enemyX - x > 5)
-                ChangeSpeed(5);
-            else
-                ChangeSpeed(enemyX - x - size);
-        }
-
-        Rotate(CalculateAngle(enemyX, enemyY));
-    }
-
-    public int CalculateAngle(int enemyX, int enemyY) {
-        if (enemyX - x > 10 || Enum.Parse<Direction>(direction) != Direction.east) {
-            if (Enum.Parse<Direction>(direction) == Direction.south)
-                return -90;
-            
-            return 90;
-        }
-
-        if (x - enemyX > 10 || Enum.Parse<Direction>(direction) != Direction.west) {
-            if (Enum.Parse<Direction>(direction) == Direction.north)
-                return -90;
-            
-            return 90;
-        }
-        if (enemyY - y > 10 || Enum.Parse<Direction>(direction) != Direction.south) {
-            if (Enum.Parse<Direction>(direction) == Direction.west)
-                return -90;
-            
-            return 90;
-        }
-        if (y - enemyY > 10 || Enum.Parse<Direction>(direction) != Direction.north) {
-            if (Enum.Parse<Direction>(direction) == Direction.east)
-                return -90;
-            
-            return 90;
-        }
-
-        return 0;
-    }
+public record MyShipEntity : MyShip {
+    /// <summary>
+    /// Add this to ShipCommandRequest if it is not null.
+    /// It is null if no changes were done to the ship.
+    /// </summary>
+    public ShipCommand? ShipCommand { get; private set; }
     
-    public void Shoot(int x, int y) {
-        ShipCommand.cannonShoot = new CannonShoot(x, y);
-    }
-
-    public void Rotate(int degrees) {
-        ShipCommand.rotate = degrees;
-    }
+    private DirectionEnum Direction;
     
-    public void ChangeSpeed(int changeSpeed) {
-        ShipCommand.changeSpeed = changeSpeed;
-    }
-
-    public MyShipEntity(int id) {
-        ShipCommand = new();
-        ShipCommand.id = id;
-    }
-
-    public ShipCommand GetShipCommand() {
-        return ShipCommand;
-    }
-
     public MyShipEntity(MyShip myShip) {
-        ShipCommand = new();
+        Direction = Enum.Parse<DirectionEnum>(direction);
         x = myShip.x;
         y = myShip.y;
         hp = myShip.hp;
@@ -93,5 +31,66 @@ public class MyShipEntity : MyShip {
         cannonRadius = myShip.cannonRadius;
         scanRadius = myShip.scanRadius;
         cannonShootSuccessCount = myShip.cannonShootSuccessCount;
+    }
+
+    public void MoveTo(int enemyX, int enemyY)
+    {
+        if (Direction == DirectionEnum.south || Direction == DirectionEnum.north) {
+            if (enemyY - y > 5)
+                ChangeSpeed(5);
+            else
+                ChangeSpeed(enemyY - y - size);
+        }
+        else {
+            if (enemyX - x > 5)
+                ChangeSpeed(5);
+            else
+                ChangeSpeed(enemyX - x - size);
+        }
+
+        Rotate(CalculateAngle(enemyX, enemyY));
+    }
+
+    public int CalculateAngle(int enemyX, int enemyY) {
+        if (enemyX - x > 10 || Direction != DirectionEnum.east) {
+            if (Direction == DirectionEnum.south)
+                return -90;
+            return 90;
+        }
+        if (x - enemyX > 10 || Direction != DirectionEnum.west) {
+            if (Direction == DirectionEnum.north)
+                return -90;
+            return 90;
+        }
+        if (enemyY - y > 10 || Direction != DirectionEnum.south) {
+            if (Direction == DirectionEnum.west)
+                return -90;
+            return 90;
+        }
+        if (y - enemyY > 10 || Direction != DirectionEnum.north) {
+            if (Direction == DirectionEnum.east)
+                return -90;
+            return 90;
+        }
+
+        return 0;
+    }
+    
+    public void Shoot(int x, int y) {
+        if(ShipCommand is null)
+            ShipCommand = new();
+        ShipCommand.cannonShoot = new CannonShoot(x, y);
+    }
+
+    public void Rotate(int degrees) {
+        if(ShipCommand is null)
+            ShipCommand = new();
+        ShipCommand.rotate = degrees;
+    }
+    
+    public void ChangeSpeed(int changeSpeed) {
+        if(ShipCommand is null)
+            ShipCommand = new();
+        ShipCommand.changeSpeed = changeSpeed;
     }
 }

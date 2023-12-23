@@ -4,18 +4,12 @@ global using System.Net.Http;
 global using System.Threading;
 global using System.Threading.Tasks;
 global using System.Text;
-using System.Diagnostics;
 using DTLib.Logging;
-using System.Text.Json;
-using DTLib.Filesystem;
-using Gameton.DataModels.Map;
-using Gameton.DataModels.ShipCommand;
-using Gameton.Game;
 
 namespace Gameton;
 
 public static class Program {
-    public static GametonClient client;
+    public static GametonClient Client = null!;
     
     public static readonly ILogger Logger = new CompositeLogger(
         new ConsoleLogger(),
@@ -33,28 +27,10 @@ public static class Program {
         if(string.IsNullOrEmpty(token))
             throw new Exception("can't get value of environment variable GAMETON_TOKEN");
         
-        client = new GametonClient(token, Logger);
-        // var longScan = await client.TryRequestLongScanAsync(100, 200);
-
-        // ShipCommandRequest shipCommandRequest = new();
-        // MyShipEntity myShipEntity = new(90);
-        // myShipEntity.Rotate(90);
-        // myShipEntity.ChangeSpeed(0);
-        // myShipEntity.Shoot(64, 1825);
-        //
-        // shipCommandRequest.ships = new List<ShipCommand>() { myShipEntity.GetShipCommand() };
-        //
-        // var shipCommand = await client.TryRequestShipCommand(shipCommandRequest);
-
-        // string jsonString = File.ReadAllText("map.json");
-        // MapResponse map = JsonSerializer.Deserialize<MapResponse>(jsonString)!;
-        //
-        // MapRenderer.Render(map);
+        Client = new GametonClient(token, Logger);
         GameManager gameManager = new();
-        
-        while (true) {
-            await gameManager.Update();
-            Thread.Sleep(3000);
-        }
+        gameManager.StartAsync();
+
+        await Task.Delay(-1); // infinite wait
     }
 }

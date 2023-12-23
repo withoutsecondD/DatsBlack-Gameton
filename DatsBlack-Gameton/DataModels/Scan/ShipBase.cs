@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Gameton.DataModels.Enum;
 
 namespace Gameton.DataModels.Scan;
 #nullable disable
