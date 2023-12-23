@@ -8,7 +8,7 @@ public class Ship
     public int size { get; set; }
     public int hp { get; set; }
     public int maxHp { get; set; }
-    public string direction { get; set; }
+    public String direction { get; set; }
     public int speed { get; set; }
     public int maxSpeed { get; set; }
     public int minSpeed { get; set; }
