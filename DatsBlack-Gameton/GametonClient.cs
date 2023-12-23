@@ -1,66 +1,61 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using DTLib.Logging;
-using Newtonsoft.Json.Linq;
+using Gameton.DataModels.LongScan;
 
 namespace Gameton;
 
 public class GametonClient
 {
-    private const string base_url = "https://datsblack.datsteam.dev/";
+    private const string base_url = "https://datsblack.datsteam.dev/api/";
     private HttpClient _http;
+    private ILogger _logger;
 
-    public GametonClient(string token)
+    public GametonClient(string token, ILogger logger)
     {
-        _http = new HttpClient(new LoggingHttpHandler())
+        _logger = logger;
+        _http = new HttpClient(new LoggingHttpHandler(_logger))
         {
             BaseAddress = new Uri(base_url)
         };
         _http.DefaultRequestHeaders.Add("X-API-Key", token);
     }
-}
 
-public class LoggingHttpHandler : DelegatingHandler
-{
-    public LoggingHttpHandler(HttpMessageHandler innerHandler) : base(innerHandler)
-    { }
-
-    public LoggingHttpHandler()
-    { }
-
-    public ILogger Logger = new CompositeLogger(
-            new ConsoleLogger(),
-            new FileLogger("logs", "gameton")
-        );
+    public async Task<TResponse> PostAsync<TResponse, TRequest>(string requestUrl, TRequest requestData)
+    {
+        var reqJsonContent = JsonContent.Create(requestData);
+        var response = await _http.PostAsync(requestUrl, reqJsonContent);
+        TResponse? responseData = await response.Content.ReadFromJsonAsync<TResponse>();
+        if (responseData != null)
+            return responseData;
+        throw new NullReferenceException($"POST {requestUrl} responded with null");
+    }
     
-    void LogHttpRequest(HttpRequestMessage req)
+    public async Task<TResponse> GetAsync<TResponse, TRequest>(string requestUrl)
     {
-        string? reqContent = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
-        string prettifiedJson = reqContent == null ? "null" : JToken.Parse(reqContent).ToString();
-        string message = $"{req.Method} to {req.RequestUri}: {prettifiedJson}";
-        Logger.LogDebug($"REQUEST", message);
+        var response = await _http.GetAsync(requestUrl);
+        TResponse? responseData = await response.Content.ReadFromJsonAsync<TResponse>();
+        if (responseData != null)
+            return responseData;
+        throw new NullReferenceException($"GET {requestUrl} responded with null");
     }
-
-    void LogHttpResponse(HttpResponseMessage res)
+    
+    /// <summary>
+    /// Requests long scan with radius 60 on specified point. Has duration 15 ticks.
+    /// </summary>
+    /// <param name="x">coordinate of long scan center</param>
+    /// <param name="y">coordinate of long scan center</param>
+    /// <returns>LongScanResponse if long scan succeed, null if it is on cooldown</returns>
+    public async Task<LongScanResponse?> TryRequestLongScanAsync(int x, int y)
     {
-        string? resContent = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-        string prettifiedJson = JToken.Parse(resContent).ToString();
-        string message = $"{res.StatusCode} ({(int)res.StatusCode}): {prettifiedJson}";
-        Logger.LogDebug($"RESPONSE", message);
-    }
+        var request = new LongScanRequest { x = x, y = y };
+        var response = await PostAsync<LongScanResponse, LongScanRequest>("longScan", request);
+        if (response.success) 
+            return response;
 
-    protected override HttpResponseMessage Send(HttpRequestMessage req, CancellationToken cancellationToken)
-    {
-        LogHttpRequest(req);
-        var res = base.Send(req, cancellationToken);
-        LogHttpResponse(res);
-        return res;
-    }
-
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage req, CancellationToken cancellationToken)
-    {
-        LogHttpRequest(req);
-        var res = await base.SendAsync(req, cancellationToken);
-        LogHttpResponse(res);
-        return res;
+        if (response.errors != null)
+            foreach (var e in response.errors)
+                _logger.LogWarn(nameof(TryRequestLongScanAsync), e);
+        return null;
     }
 }

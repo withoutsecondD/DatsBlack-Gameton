@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 
 namespace Gameton.DataModels.Scan;
-#nullable disable
 
 public class MyShip : ShipBase
 {
