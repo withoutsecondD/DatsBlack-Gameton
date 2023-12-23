@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace Gameton.DataModels.Scan;
 #nullable disable
 
-public class EnemyShip
+public class ShipBase
 {
     [JsonRequired] public int x { get; set; }
     [JsonRequired] public int y { get; set; }
