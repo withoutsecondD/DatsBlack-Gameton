@@ -28,13 +28,13 @@ public class BotController : ShipController {
                     MyShipEntity.Shoot(enemyX, enemyY);
             }
             else {
-                MyShipEntity.Move(enemyX, enemyY, nearestAlly, map);
-                return MyShipEntity.ShipCommand;;
+                MyShipEntity.Move(enemyX, enemyY, map);
             }
+            
+            return MyShipEntity.ShipCommand;
         }
         
-        MyShipEntity.Move(zone.x, zone.y, nearestAlly, map);
-        
+        MyShipEntity.Move(MyShipEntity.x, MyShipEntity.y, map);
         return MyShipEntity.ShipCommand;
     }
 

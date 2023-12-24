@@ -39,6 +39,32 @@ public record ShipBase
         return (finalX, finalY);
     }
     
+    public (int, int) PredictMovement(string direction) {
+        int finalX = 0;
+        int finalY = 0;
+
+        switch (direction) {
+            case "north":
+                finalX = x;
+                finalY = y - speed;
+                break;
+            case "south":
+                finalX = x;
+                finalY = y + speed;
+                break;
+            case "west":
+                finalX = x - speed;
+                finalY = y;
+                break;
+            case "east":
+                finalX = x + speed;
+                finalY = y;
+                break;
+        }
+        
+        return (finalX, finalY);
+    }
+    
     public double GetDistance(int x0, int y0) =>
         Math.Sqrt(Math.Pow(x - x0, 2) + Math.Pow(y - y0, 2));
 }

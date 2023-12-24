@@ -37,28 +37,39 @@ public record MyShipEntity : MyShip {
         DirectionLocked = directionLocked;
     }
 
-    public void Move(int enemyX, int enemyY, MyShipEntity ally, GameMap map) {
+    public void Move(int targetX, int targetY, GameMap map) {
         if (Direction == DirectionEnum.south || Direction == DirectionEnum.north) {
-            if (Math.Abs(enemyY - y) > 5)
+            if (Math.Abs(targetY - y) > 5)
                 ChangeSpeed(5);
             else
-                ChangeSpeed(Math.Abs(enemyY - y - size));
+                ChangeSpeed(Math.Abs(targetY - y - size));
         }
         else {
-            if (Math.Abs(enemyX - x) > 5)
+            if (Math.Abs(targetX - x) > 5)
                 ChangeSpeed(5);
             else
-                ChangeSpeed(Math.Abs(enemyX - x - size));
+                ChangeSpeed(Math.Abs(targetX - x - size));
         }
 
-        if (PredictIslandCollision(map, Enum.Parse<DirectionEnum>(direction))) {
+        if (PredictCollision(map, Enum.Parse<DirectionEnum>(direction), Enum.Parse<DirectionEnum>(direction))) {
             Rotate(90);
             ChangeSpeed(-7);
             DirectionLocked[id] = true;
+            return;
         }
 
-        if (DirectionLocked[id]) {
-            Rotate(CalculateAngle(enemyX, enemyY));
+        if (!DirectionLocked[id]) {
+            string tempDirection = direction;
+            
+            Rotate(CalculateAngle(targetX, targetY));
+            if (PredictCollision(map, Enum.Parse<DirectionEnum>(tempDirection), Enum.Parse<DirectionEnum>(direction))) {
+                Rotate(null);
+                ChangeSpeed(-7);
+                DirectionLocked[id] = true;
+                return;
+            }
+        }
+        else {
             DirectionLocked[id] = false;
         }
     }
@@ -114,34 +125,34 @@ public record MyShipEntity : MyShip {
         return null;
     }
 
-    public bool PredictIslandCollision(GameMap map, DirectionEnum direction) {
-        (int predictedX, int predictedY) = PredictMovement();
+    public bool PredictCollision(GameMap map, DirectionEnum currentDirection, DirectionEnum finalDirection) {
+        (int predictedX, int predictedY) = PredictMovement(currentDirection.ToString());
 
-        switch (direction) {
+        switch (finalDirection) {
             case DirectionEnum.east:
                 for (int x = 0; x <= size + 40; x++) {
-                    if (map.Data[predictedY, predictedX + x] == GameMapCell.Island)
+                    if (map.Data[predictedY, predictedX + x] == GameMapCell.Island || map.Data[predictedY, predictedX + x] == GameMapCell.Enemy || map.Data[predictedY, predictedX + x] == GameMapCell.Ally)
                         return true;
                 }
 
                 break;
             case DirectionEnum.west:
                 for (int x = 0; x <= size + 40; x++) {
-                    if (map.Data[predictedY, predictedX - x] == GameMapCell.Island)
+                    if (map.Data[predictedY, predictedX - x] == GameMapCell.Island || map.Data[predictedY, predictedX - x] == GameMapCell.Enemy || map.Data[predictedY, predictedX - x] == GameMapCell.Ally)
                         return true;
                 }
 
                 break;
             case DirectionEnum.north:
                 for (int y = 0; y <= size + 40; y++) {
-                    if (map.Data[predictedY - y, predictedX] == GameMapCell.Island)
+                    if (map.Data[predictedY - y, predictedX] == GameMapCell.Island || map.Data[predictedY - y, predictedX] == GameMapCell.Enemy || map.Data[predictedY - y, predictedX] == GameMapCell.Ally)
                         return true;
                 }
 
                 break;
             case DirectionEnum.south:
                 for (int y = 0; y <= size + 40; y++) {
-                    if (map.Data[predictedY + y, predictedX] == GameMapCell.Island)
+                    if (map.Data[predictedY + y, predictedX] == GameMapCell.Island || map.Data[predictedY + y, predictedX] == GameMapCell.Enemy || map.Data[predictedY + y, predictedX] == GameMapCell.Ally)
                         return true;
                 }
 
@@ -177,7 +188,7 @@ public record MyShipEntity : MyShip {
     
     public void ChangeSpeed(int deltaV)
     {
-        if (deltaV > 5 || deltaV < -5)
+        if (deltaV > 7 || deltaV < -7)
             throw new Exception($"can't change speed on {deltaV}");
         
         if(ShipCommand is null)

@@ -14,7 +14,7 @@ public class GameManager
     private GameMap _mapWithIslandsOnly;
     #nullable enable
     private DTLib.Timer UpdateTimer;
-    private Dictionary<int, bool> DirectionLocked;
+    private Dictionary<int, bool> DirectionLocked = new();
     
     public event Action<GameState>? OnUpdate;
 
@@ -52,12 +52,12 @@ public class GameManager
             ScanResponse scan = await Client.TryRequestScanAsync()
                 ?? throw new Exception("scan is null");
 
-            var myShipEntites = scan.scan.myShips.Select(s => {
+            var myShipEntities = scan.scan.myShips.Select(s => {
                 DirectionLocked.TryAdd(s.id, false);
                 return new MyShipEntity(s, DirectionLocked);
-            });
+            }).ToList();
             
-            var gameState = new GameState(scan, _mapWithIslandsOnly);
+            var gameState = new GameState(scan, _mapWithIslandsOnly, myShipEntities);
             
             OnUpdate?.Invoke(gameState);
 

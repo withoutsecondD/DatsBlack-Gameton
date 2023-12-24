@@ -12,10 +12,11 @@ public class GameState
     public List<ShipBase> enemyShips;
     public Zone zone;
 
-    public GameState(ScanResponse scan, GameMap initialMap)
+    public GameState(ScanResponse scan, GameMap initialMap, List<MyShipEntity> myShipEntities)
     {
         enemyShips = scan.scan.enemyShips;
         myShips = scan.scan.myShips;
+        myShipsEntities = myShipEntities;
         zone = scan.scan.zone;
         Map = initialMap.Copy();
         Map.DrawAllies(myShips);
