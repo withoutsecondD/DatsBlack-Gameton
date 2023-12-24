@@ -5,5 +5,5 @@ namespace Gameton.DataModels;
 public record ResponseBase
 {
     [JsonRequired] public bool success { get; set; }
-    [JsonRequired] public List<ResponseError>? errors { get; set; }
+    public List<ResponseError>? errors { get; set; }
 }

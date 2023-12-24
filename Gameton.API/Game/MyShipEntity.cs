@@ -16,7 +16,6 @@ public record MyShipEntity : MyShip {
     private DirectionEnum Direction;
     
     public MyShipEntity(MyShip myShip) {
-        Direction = Enum.Parse<DirectionEnum>(direction);
         x = myShip.x;
         y = myShip.y;
         hp = myShip.hp;
@@ -33,6 +32,7 @@ public record MyShipEntity : MyShip {
         cannonRadius = myShip.cannonRadius;
         scanRadius = myShip.scanRadius;
         cannonShootSuccessCount = myShip.cannonShootSuccessCount;
+        Direction = Enum.Parse<DirectionEnum>(direction);
     }
 
     public void Move(int enemyX, int enemyY, MyShipEntity ally, GameMap map) {
@@ -128,15 +128,28 @@ public record MyShipEntity : MyShip {
         ShipCommand.cannonShoot = new CannonShoot(x, y);
     }
 
-    public void Rotate(int degrees) {
+    public void Rotate(int angle)
+    {
+        if (angle > 90 || angle < -90)
+            throw new Exception($"can't turn to degree {angle}");
+        
         if(ShipCommand is null)
             ShipCommand = new();
-        ShipCommand.rotate = degrees;
+        ShipCommand.rotate = angle;
     }
     
-    public void ChangeSpeed(int changeSpeed) {
+    public void ChangeSpeed(int deltaV)
+    {
+        if (deltaV > 5 || deltaV < -5)
+            throw new Exception($"can't change speed on {deltaV}");
+        
         if(ShipCommand is null)
             ShipCommand = new();
-        ShipCommand.changeSpeed = changeSpeed;
+        ShipCommand.changeSpeed = deltaV;
+    }
+
+    public int GetAngleToDirection(DirectionEnum otherDirection)
+    {
+        return (Direction - otherDirection) * 90;
     }
 }

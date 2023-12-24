@@ -9,20 +9,41 @@ public class LoggingHttpHandler : DelegatingHandler
     {
         _logger = logger;
     }
+
+    string TryPrettifyJson(string? json)
+    {
+        string prettifiedJson = "null";
+        if (json != null)
+            try
+            {
+                if (json.Length > 2000)
+                    prettifiedJson = "{ LONG JSON }";
+                else prettifiedJson = JToken.Parse(json).ToString();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(nameof(LoggingHttpHandler), "Json parse error");
+            }
+
+        return prettifiedJson;
+    }
     
     void LogHttpRequest(HttpRequestMessage req)
     {
-        string? reqContent = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
-        string prettifiedJson = reqContent == null ? "null" : JToken.Parse(reqContent).ToString();
-        string message = $"{req.Method} to {req.RequestUri}: {prettifiedJson}";
+        string message;
+        if(req.Method == HttpMethod.Post)
+        {
+            string? reqContent = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
+            message = $"{req.Method} to {req.RequestUri}: {TryPrettifyJson(reqContent)}";
+        }
+        else message = $"{req.Method} to {req.RequestUri}";
         _logger.LogDebug($"REQUEST", message);
     }
 
     void LogHttpResponse(HttpResponseMessage res)
     {
-        string? resContent = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-        string prettifiedJson = JToken.Parse(resContent).ToString();
-        string message = $"{res.StatusCode} ({(int)res.StatusCode}): {prettifiedJson}";
+        string resContent = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        string message = $"{res.StatusCode} ({(int)res.StatusCode}): {TryPrettifyJson(resContent)}";
         _logger.LogDebug($"RESPONSE", message);
     }
 
