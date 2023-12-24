@@ -11,11 +11,16 @@ public partial class MainWindow : Window
     public MainWindow(GameManager gameManager)
     {
         InitializeComponent();
-        gameManager.OnUpdate += gameState => DrawGameMap(gameState.Map);
+        gameManager.OnUpdate += Update;
         MouseWheel += Image_MouseWheel;
         imageControl.MouseDown += Image_MouseDown;
         imageControl.MouseMove += Image_MouseMove;
         imageControl.MouseUp += Image_MouseUp;
+    }
+
+    private void Update(GameState gameState)
+    {
+        DrawGameMap(gameState.Map);
     }
     
     private void Image_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -25,19 +30,15 @@ public partial class MainWindow : Window
         ImageScale.ScaleX = Math.Max(minZoom, ImageScale.ScaleX + zoom);
         ImageScale.ScaleY = Math.Max(minZoom, ImageScale.ScaleY + zoom);
     }
-        
-    private Point origin;
-    private Point start;
+    
+    private Point mouseDownPoint;
     
     private void Image_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.Left)
         {
             imageControl.CaptureMouse();
-            var tt = (TranslateTransform)((TransformGroup)imageControl.RenderTransform)
-                .Children.First(tr => tr is TranslateTransform);
-            start = e.GetPosition(this);
-            origin = new Point(tt.X, tt.Y);
+            mouseDownPoint = e.GetPosition(this);
         }
     }
 
@@ -45,12 +46,16 @@ public partial class MainWindow : Window
     {
         if (imageControl.IsMouseCaptured)
         {
-            var tt = (TranslateTransform)((TransformGroup)imageControl.RenderTransform)
-                .Children.First(tr => tr is TranslateTransform);
-            Vector v = start - e.GetPosition(this);
-            tt.X = origin.X - v.X;
-            tt.Y = origin.Y - v.Y;
+            Vector mouseMove = e.GetPosition(this) - mouseDownPoint; 
+            ImageTranslate.X += mouseMove.X;
+            ImageTranslate.Y += mouseMove.Y;
         }
+    }
+
+    public void MapMoveTo(int x, int y)
+    {
+        ImageTranslate.X = x * ImageScale.ScaleX;
+        ImageTranslate.Y = y * ImageScale.ScaleY;
     }
 
     private void Image_MouseUp(object sender, MouseButtonEventArgs e)
