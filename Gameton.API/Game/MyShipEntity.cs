@@ -54,6 +54,10 @@ public record MyShipEntity : MyShip {
         if (PredictCollision(map, Enum.Parse<DirectionEnum>(direction), Enum.Parse<DirectionEnum>(direction))) {
             Rotate(90);
             ChangeSpeed(-7);
+            
+            if (speed == -1)
+                ChangeSpeed(2);
+            
             DirectionLocked[id] = true;
             return;
         }
@@ -68,6 +72,9 @@ public record MyShipEntity : MyShip {
                 DirectionLocked[id] = true;
                 return;
             }
+            
+            if (speed == -1)
+                ChangeSpeed(2);
         }
         else {
             DirectionLocked[id] = false;
@@ -130,28 +137,28 @@ public record MyShipEntity : MyShip {
 
         switch (finalDirection) {
             case DirectionEnum.east:
-                for (int x = 0; x <= size + 40; x++) {
+                for (int x = 0; x <= size + 15; x++) {
                     if (map.Data[predictedY, predictedX + x] == GameMapCell.Island || map.Data[predictedY, predictedX + x] == GameMapCell.Enemy || map.Data[predictedY, predictedX + x] == GameMapCell.Ally)
                         return true;
                 }
 
                 break;
             case DirectionEnum.west:
-                for (int x = 0; x <= size + 40; x++) {
+                for (int x = 0; x <= size + 15; x++) {
                     if (map.Data[predictedY, predictedX - x] == GameMapCell.Island || map.Data[predictedY, predictedX - x] == GameMapCell.Enemy || map.Data[predictedY, predictedX - x] == GameMapCell.Ally)
                         return true;
                 }
 
                 break;
             case DirectionEnum.north:
-                for (int y = 0; y <= size + 40; y++) {
+                for (int y = 0; y <= size + 15; y++) {
                     if (map.Data[predictedY - y, predictedX] == GameMapCell.Island || map.Data[predictedY - y, predictedX] == GameMapCell.Enemy || map.Data[predictedY - y, predictedX] == GameMapCell.Ally)
                         return true;
                 }
 
                 break;
             case DirectionEnum.south:
-                for (int y = 0; y <= size + 40; y++) {
+                for (int y = 0; y <= size + 15; y++) {
                     if (map.Data[predictedY + y, predictedX] == GameMapCell.Island || map.Data[predictedY + y, predictedX] == GameMapCell.Enemy || map.Data[predictedY + y, predictedX] == GameMapCell.Ally)
                         return true;
                 }

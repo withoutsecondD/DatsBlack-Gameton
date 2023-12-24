@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Gameton.DataModels.Scan;
 using Gameton.DataModels.ShipCommand;
 
 namespace Gameton.Game;
@@ -9,17 +10,16 @@ public class BotController : ShipController {
         var enemyShips = GameState.enemyShips;
         var map = GameState.Map;
         var zone = GameState.zone;
+        ShipBase targetShip = null;
         
         MyShipEntity? nearestAlly = null;
 
-        if (myShipEntities != null)
-            nearestAlly = MyShipEntity.FindNearestShip(MyShipEntity.SearchAllies(myShipEntities));
-            
         if (enemyShips != null && enemyShips.Count != 0) {
-            if (myShipEntities != null)
-                enemyShips.Sort((s1, s2) => s1.size - s2.size);
-        
-            (int enemyX, int enemyY) = enemyShips[0].PredictMovement();
+            if (myShipEntities != null) {
+                targetShip = enemyShips.MinBy(s => MyShipEntity.GetDistance(s.x, s.y));
+            }
+
+            (int enemyX, int enemyY) = targetShip.PredictMovement();
         
             double distance = MyShipEntity.GetDistance(enemyX, enemyY);
 
