@@ -8,25 +8,36 @@ public class BotController : ShipController {
         var myShipEntities = GameState.myShipsEntities;
         var enemyShips = GameState.enemyShips;
         var map = GameState.Map;
-
+        var zone = GameState.zone;
+        
         MyShipEntity? nearestAlly = null;
 
         if (myShipEntities != null)
             nearestAlly = MyShipEntity.FindNearestShip(MyShipEntity.SearchAllies(myShipEntities));
             
-        if (enemyShips != null) {
+        if (enemyShips != null && enemyShips.Count != 0) {
             if (myShipEntities != null)
                 enemyShips.Sort((s1, s2) => s1.size - s2.size);
-
+        
             (int enemyX, int enemyY) = enemyShips[0].PredictMovement();
-
+        
             double distance = MyShipEntity.GetDistance(enemyX, enemyY);
 
-            if (distance <= 20)
-                MyShipEntity.Shoot(enemyX, enemyY);
-            else
+            if (distance <= 20) {
+                if (MyShipEntity.cannonCooldown == 0)
+                    MyShipEntity.Shoot(enemyX, enemyY);
+            }
+            else {
                 MyShipEntity.Move(enemyX, enemyY, nearestAlly, map);
+                return MyShipEntity.ShipCommand;;
+            }
         }
+        // else {
+        //     if (zone != null)
+        //         MyShipEntity.Move(zone.x, zone.y, nearestAlly, map);
+        //     else
+                MyShipEntity.Move(1000, 1000, nearestAlly, map);
+        // }
         
         return MyShipEntity.ShipCommand;
     }

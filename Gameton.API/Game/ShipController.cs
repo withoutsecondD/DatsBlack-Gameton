@@ -11,8 +11,6 @@ public abstract class ShipController {
         return MyShipEntity.ShipCommand;
     } 
     
-    
-    
     public ShipController(MyShipEntity myShipEntity, GameState gameState) {
         MyShipEntity = myShipEntity;
         GameState = gameState;
