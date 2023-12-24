@@ -34,7 +34,6 @@ public class GameManager
                 throw new Exception("can't get MapData");
             _mapWithIslandsOnly = await GameMap.CreateAsync(mapData);
             UpdateTimer.Start();
-            
         }
         catch (Exception e)
         {
@@ -54,8 +53,6 @@ public class GameManager
                 ?? throw new Exception("scan is null");
 
             var gameState = new GameState(scan, _mapWithIslandsOnly);
-            
-            // ShipsAIUpdate(gameState.myShipsEntities, gameState.enemyShips);
             
             OnUpdate?.Invoke(gameState);
 

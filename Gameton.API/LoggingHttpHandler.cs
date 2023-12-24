@@ -9,6 +9,24 @@ public class LoggingHttpHandler : DelegatingHandler
     {
         _logger = logger;
     }
+
+    string TryPrettifyJson(string? json)
+    {
+        string prettifiedJson = "null";
+        if (json != null)
+            try
+            {
+                if (json.Length > 2000)
+                    prettifiedJson = "{ LONG JSON }";
+                else prettifiedJson = JToken.Parse(json).ToString();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(nameof(LoggingHttpHandler), "Json parse error");
+            }
+
+        return prettifiedJson;
+    }
     
     void LogHttpRequest(HttpRequestMessage req)
     {
@@ -16,20 +34,7 @@ public class LoggingHttpHandler : DelegatingHandler
         if(req.Method == HttpMethod.Post)
         {
             string? reqContent = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
-            string prettifiedJson = "null";
-            if (reqContent != null)
-                try
-                {
-                    if (reqContent.Length > 2000)
-                        prettifiedJson = "{ LONG JSON }";
-                    else prettifiedJson = JToken.Parse(reqContent).ToString();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(nameof(LoggingHttpHandler), ex);
-                }
-
-            message = $"{req.Method} to {req.RequestUri}: {prettifiedJson}";
+            message = $"{req.Method} to {req.RequestUri}: {TryPrettifyJson(reqContent)}";
         }
         else message = $"{req.Method} to {req.RequestUri}";
         _logger.LogDebug($"REQUEST", message);
@@ -38,18 +43,7 @@ public class LoggingHttpHandler : DelegatingHandler
     void LogHttpResponse(HttpResponseMessage res)
     {
         string resContent = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-        string prettifiedJson = "null";
-        try
-        {
-            if (resContent.Length > 2000)
-                prettifiedJson = "{ LONG JSON }";
-            else prettifiedJson = JToken.Parse(resContent).ToString();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(nameof(LoggingHttpHandler), ex);
-        }
-        string message = $"{res.StatusCode} ({(int)res.StatusCode}): {prettifiedJson}";
+        string message = $"{res.StatusCode} ({(int)res.StatusCode}): {TryPrettifyJson(resContent)}";
         _logger.LogDebug($"RESPONSE", message);
     }
 

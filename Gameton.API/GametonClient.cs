@@ -41,6 +41,17 @@ public class GametonClient
         throw new NullReferenceException($"POST {requestUrl} responded with null");
     }
     
+    
+    public async Task<TResponse> PostAsync<TResponse>(string requestUrl)
+    {
+        var response = await _http.PostAsync(requestUrl, new StringContent(""));
+        TResponse? responseData = await response.Content.ReadFromJsonAsync<TResponse>();
+        if (responseData != null)
+            return responseData;
+        
+        throw new NullReferenceException($"POST {requestUrl} responded with null");
+    }
+    
     public async Task<TResponse> GetAsync<TResponse>(string requestUrl)
     {
         var response = await _http.GetAsync(requestUrl);
@@ -109,21 +120,21 @@ public class GametonClient
 
     public async Task<bool> TryRegisterOnDeathmatch()
     {
-        var response = await GetAsync<ResponseBase>("deathMatch/registration");
+        var response = await PostAsync<ResponseBase>("deathMatch/registration");
         LogResponseErrors(response);
         return response.success;
     }
     
     public async Task<bool> TryExitDeathmatch()
     {
-        var response = await GetAsync<ResponseBase>("deathMatch/exitBattle");
+        var response = await PostAsync<ResponseBase>("deathMatch/exitBattle");
         LogResponseErrors(response);
         return response.success;
     }
     
     public async Task<bool> TryRegisterOnBattleRoyal()
     {
-        var response = await GetAsync<ResponseBase>("royalBattle/registration");
+        var response = await PostAsync<ResponseBase>("royalBattle/registration");
         LogResponseErrors(response);
         return response.success;
     }
