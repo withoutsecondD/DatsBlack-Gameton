@@ -12,16 +12,43 @@ public class LoggingHttpHandler : DelegatingHandler
     
     void LogHttpRequest(HttpRequestMessage req)
     {
-        string? reqContent = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
-        string prettifiedJson = reqContent == null ? "null" : JToken.Parse(reqContent).ToString();
-        string message = $"{req.Method} to {req.RequestUri}: {prettifiedJson}";
+        string message;
+        if(req.Method == HttpMethod.Post)
+        {
+            string? reqContent = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
+            string prettifiedJson = "null";
+            if (reqContent != null)
+                try
+                {
+                    if (reqContent.Length > 2000)
+                        prettifiedJson = "{ LONG JSON }";
+                    else prettifiedJson = JToken.Parse(reqContent).ToString();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(nameof(LoggingHttpHandler), ex);
+                }
+
+            message = $"{req.Method} to {req.RequestUri}: {prettifiedJson}";
+        }
+        else message = $"{req.Method} to {req.RequestUri}";
         _logger.LogDebug($"REQUEST", message);
     }
 
     void LogHttpResponse(HttpResponseMessage res)
     {
-        string? resContent = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-        string prettifiedJson = JToken.Parse(resContent).ToString();
+        string resContent = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        string prettifiedJson = "null";
+        try
+        {
+            if (resContent.Length > 2000)
+                prettifiedJson = "{ LONG JSON }";
+            else prettifiedJson = JToken.Parse(resContent).ToString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(nameof(LoggingHttpHandler), ex);
+        }
         string message = $"{res.StatusCode} ({(int)res.StatusCode}): {prettifiedJson}";
         _logger.LogDebug($"RESPONSE", message);
     }

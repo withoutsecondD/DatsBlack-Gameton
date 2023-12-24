@@ -21,14 +21,24 @@ public static class Program {
         );
         logger.DebugLogEnabled = true;
         
-        string? token = Environment.GetEnvironmentVariable("GAMETON_TOKEN");
-        if(string.IsNullOrEmpty(token))
-            throw new Exception("can't get value of environment variable GAMETON_TOKEN");
-        
-        var client = new GametonClient(token, logger);
-        GameManager gameManager = new(client, logger);
-        gameManager.StartAsync();
+        try
+        {
+            string? token = Environment.GetEnvironmentVariable("GAMETON_TOKEN");
+            if(string.IsNullOrEmpty(token))
+                throw new Exception("can't get value of environment variable GAMETON_TOKEN");
+            
+            var client = new GametonClient(token, logger);
+            
+            // GameManager gameManager = new(client, logger);
+            // gameManager.StartAsync();
+            
+            await client.TryRegisterOnBattleRoyal();
 
-        await Task.Delay(-1); // infinite wait
+            await Task.Delay(-1); // infinite wait
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Main", e);
+        }
     }
 }

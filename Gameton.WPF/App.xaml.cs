@@ -15,23 +15,23 @@ namespace Gameton.WPF;
 /// </summary>
 public partial class App : Application
 {
+    public static ILogger Logger = new CompositeLogger(
+        new ConsoleLogger(),
+        new FileLogger("logs", "gameton"));
+    
     protected override void OnStartup(StartupEventArgs e)
     {
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
         
-        ILogger logger = new CompositeLogger(
-            new ConsoleLogger(),
-            new FileLogger("logs", "gameton")
-        );
-        logger.DebugLogEnabled = true;
+        Logger.DebugLogEnabled = true;
         
         string? token = Environment.GetEnvironmentVariable("GAMETON_TOKEN");
         if(string.IsNullOrEmpty(token))
             throw new Exception("can't get value of environment variable GAMETON_TOKEN");
         
-        var client = new GametonClient(token, logger);
-        GameManager gameManager = new(client, logger);
+        var client = new GametonClient(token, Logger);
+        GameManager gameManager = new(client, Logger);
         
         Window mainWindow = new MainWindow(gameManager);
         mainWindow.Show();
