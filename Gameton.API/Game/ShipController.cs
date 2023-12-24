@@ -16,5 +16,6 @@ public abstract class ShipController {
     public ShipController(MyShipEntity myShipEntity, GameState gameState) {
         MyShipEntity = myShipEntity;
         GameState = gameState;
+        MyShipEntity.ShipController = this;
     }
 }

@@ -23,7 +23,7 @@ public class GameMap
             return gameMap;
         });
 
-    public GameMap Copy() => new(Data, Width, Height);
+    public GameMap Copy() => new((GameMapCell[,])Data.Clone(), Width, Height);
     
     private GameMap(GameMapCell[,] data, int width, int height)
     {

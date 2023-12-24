@@ -59,7 +59,7 @@ public class GameManager
             shipCommandRequest.ships = new List<ShipCommand>();
         
             foreach (var myShip in gameState.myShipsEntities) {
-                ShipCommand? shipCommand = myShip.ShipController.GetShipCommand();
+                ShipCommand? shipCommand = myShip.ShipController?.GetShipCommand();
                 if(shipCommand is not null)
                 {
                     shipCommand.id = myShip.id;

@@ -11,7 +11,7 @@ public record MyShipEntity : MyShip {
     /// It is null if no changes were done to the ship.
     /// </summary>
     public ShipCommand? ShipCommand { get; private set; }
-    public ShipController ShipController;
+    public ShipController? ShipController;
 
     private DirectionEnum Direction;
     

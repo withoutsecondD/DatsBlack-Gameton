@@ -5,14 +5,12 @@ namespace Gameton.WPF;
 
 public partial class EnemyShipItem : UserControl
 {
-    public EnemyShipItem(ShipBase enemyShip)
+    public EnemyShipItem(ShipBase ship)
     {
         InitializeComponent();
-        
-        string hp = "HP: " + enemyShip.hp;
-        string size = "Size: " + enemyShip.size;
-        string speed = "Speed: " + enemyShip.speed;
-        TextBlock textBlock = new TextBlock();
-        textBlock.Text += hp + "\n" + size + "\n" + speed;
+        TextBlockHp.Text = $"HP: {ship.hp}/{ship.maxHp}";
+        TextBlockSize.Text = $"Size: {ship.size}";
+        TextBlockSpeed.Text = $"Speed: {ship.speed}";
+        TextBlockDirection.Text = $"Direction: {ship.direction}";
     }
 }

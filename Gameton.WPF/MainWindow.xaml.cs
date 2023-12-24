@@ -28,8 +28,11 @@ public partial class MainWindow : Window
         try
         {
             DrawGameMap(gameState.Map);
-            CreateAllyShipItems(gameState.myShipsEntities);
-            CreateEnemyShipItems(gameState.enemyShips);
+            Dispatcher.Invoke(() =>
+            {
+                DrawAllyShipItems(gameState.myShipsEntities);
+                DrawEnemyShipItems(gameState.enemyShips);
+            });
         }
         catch (Exception e)
         {
@@ -114,7 +117,7 @@ public partial class MainWindow : Window
     }
 
     
-    private void CreateAllyShipItems(List<MyShipEntity> myShips)
+    private void DrawAllyShipItems(List<MyShipEntity> myShips)
     {
         AllyPanel.Children.Clear();
         foreach (var allyShipItem in myShips.Select((ship) => new AllyShipItem(ship)))
@@ -124,7 +127,7 @@ public partial class MainWindow : Window
             AllyPanel.Children.Add(allyShipItem);
         }
     }
-    private void CreateEnemyShipItems(List<ShipBase> enemyShips)
+    private void DrawEnemyShipItems(List<ShipBase> enemyShips)
     {
         EnemyPanel.Children.Clear();
         foreach (var enemyShipItem in enemyShips.Select((ship) => new EnemyShipItem(ship)))
@@ -134,7 +137,7 @@ public partial class MainWindow : Window
     }
 
 
-    private void AllyItem_ItemClicked(object sender, EventArgs e)
+    private void AllyItem_ItemClicked(object? sender, EventArgs e)
     {
         if (sender is AllyShipItem clickedAlly)
         {
@@ -160,7 +163,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private byte[]? _mapPixels = null;
+    private byte[]? _mapPixels;
     
     private void DrawGameMap(GameMap map)
     {
@@ -189,7 +192,7 @@ public partial class MainWindow : Window
         Int32Rect rect = new Int32Rect(0, 0, map.Width, map.Height);
         writableBitmap.WritePixels(rect, _mapPixels, map.Width * bytesPerPixel, 0);
         writableBitmap.Freeze();
-        App.Current.Dispatcher?.Invoke(() => imageControl.Source = writableBitmap);
+        Dispatcher?.Invoke(() => imageControl.Source = writableBitmap);
     }
 
     private Color GetColorForCell(GameMapCell cell) =>

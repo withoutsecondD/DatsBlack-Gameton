@@ -5,15 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Gameton.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        Background="Black">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="100"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
         </Grid.ColumnDefinitions>
      
         <Canvas Grid.Column="1">
@@ -27,8 +28,11 @@
             </Image>
             
         </Canvas>
-                <StackPanel Grid.Column="0" x:Name="AllyPanel"></StackPanel>
-        <StackPanel Grid.Column="2" x:Name="EnemyPanel"></StackPanel>
-        
+        <Border Grid.Column="0" BorderBrush="White" BorderThickness="1">
+            <StackPanel x:Name="AllyPanel" Background="Black"/>
+        </Border>
+        <Border Grid.Column="2" BorderBrush="White" BorderThickness="1">
+            <StackPanel x:Name="EnemyPanel" Background="Black"/>
+        </Border>
     </Grid>
 </Window>
