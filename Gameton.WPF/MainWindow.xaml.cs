@@ -1,7 +1,9 @@
 ﻿using System.Linq;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Gameton.DataModels.Scan;
 using Gameton.Game;
 
 namespace Gameton.WPF;
@@ -21,6 +23,8 @@ public partial class MainWindow : Window
     private void Update(GameState gameState)
     {
         DrawGameMap(gameState.Map);
+        CreateAllyShipItems(gameState.myShipsEntities);
+        CreateEnemyShipItems(gameState.enemyShips);
     }
     
     private void Image_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -52,10 +56,43 @@ public partial class MainWindow : Window
         }
     }
 
-    public void MapMoveTo(int x, int y)
+    
+    private void CreateAllyShipItems(List<MyShipEntity> myShips)
     {
-        ImageTranslate.X = x * ImageScale.ScaleX;
-        ImageTranslate.Y = y * ImageScale.ScaleY;
+        AllyPanel.Children.Clear();
+        foreach (var allyShipItem in myShips.Select((ship) => new AllyShipItem(ship)))
+        {
+            allyShipItem.ItemClicked += AllyItem_ItemClicked;
+            
+            AllyPanel.Children.Add(allyShipItem);
+        }
+    }
+    private void CreateEnemyShipItems(List<ShipBase> enemyShips)
+    {
+        EnemyPanel.Children.Clear();
+        foreach (var enemyShipItem in enemyShips.Select((ship) => new EnemyShipItem(ship)))
+        {
+            EnemyPanel.Children.Add(enemyShipItem);
+        }
+    }
+
+
+    private void AllyItem_ItemClicked(object sender, EventArgs e)
+    {
+        if (sender is AllyShipItem clickedAlly)
+        {
+            MapMoveTo(clickedAlly);
+        }
+    }
+    
+    private void MapMoveTo(AllyShipItem allyItem)
+    {
+        
+        double targetX = allyItem.TranslatePoint(new Point(0, 0), imageControl).X - imageControl.ActualWidth / 2;
+        double targetY = allyItem.TranslatePoint(new Point(0, 0), imageControl).Y - imageControl.ActualHeight / 2;
+        
+        ImageTranslate.X = -targetX;
+        ImageTranslate.Y = -targetY;
     }
 
     private void Image_MouseUp(object sender, MouseButtonEventArgs e)

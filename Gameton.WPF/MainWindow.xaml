@@ -7,8 +7,16 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
-        <Canvas>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="100"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+     
+        <Canvas Grid.Column="1">
             <Image Name="imageControl" Stretch="None" MaxWidth="16000" MaxHeight="16000">
                 <Image.RenderTransform>
                     <TransformGroup>
@@ -17,7 +25,10 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
+            
         </Canvas>
-                
+                <StackPanel Grid.Column="0" x:Name="AllyPanel"></StackPanel>
+        <StackPanel Grid.Column="2" x:Name="EnemyPanel"></StackPanel>
+        
     </Grid>
 </Window>
