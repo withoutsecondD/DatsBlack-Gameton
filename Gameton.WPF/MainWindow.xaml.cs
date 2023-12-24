@@ -87,12 +87,28 @@ public partial class MainWindow : Window
     
     private void Image_MouseWheel(object sender, MouseWheelEventArgs e)
     {
-        double zoom = e.Delta > 0 ? .1 : -.1;
+        double zoom = e.Delta > 0 ? 1.1 : 0.9; // You can adjust the zoom factor
         double minZoom = 0.1;
-        ImageScale.ScaleX = Math.Max(minZoom, ImageScale.ScaleX + zoom);
-        ImageScale.ScaleY = Math.Max(minZoom, ImageScale.ScaleY + zoom);
+
+        double mouseX = e.GetPosition(imageControl).X;
+        double mouseY = e.GetPosition(imageControl).Y;
+
+        double imageWidth = imageControl.ActualWidth;
+        double imageHeight = imageControl.ActualHeight;
+
+        if (mouseX >= 0 && mouseX <= imageWidth && mouseY >= 0 && mouseY <= imageHeight)
+        {
+            ImageScale.CenterX = mouseX;
+            ImageScale.CenterY = mouseY;
+
+            ImageScale.ScaleX = Math.Max(minZoom, ImageScale.ScaleX * zoom);
+            ImageScale.ScaleY = Math.Max(minZoom, ImageScale.ScaleY * zoom);
+        }
     }
-    
+
+
+
+
     private Point mouseDownPoint;
     private Point translateOriginPoint;
     
