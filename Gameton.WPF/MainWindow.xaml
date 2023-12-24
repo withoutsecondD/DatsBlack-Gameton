@@ -7,23 +7,28 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
-
-        <!--<ScrollViewer Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Visible">-->
-        <Canvas>
-            <Image Name="imageControl" Stretch="None" MaxWidth="4000" MaxHeight="4000">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="100"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+     
+        <Canvas Grid.Column="1">
+            <Image Name="imageControl" Stretch="None" MaxWidth="16000" MaxHeight="16000">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform x:Name="ImageScale"/>
-                        <TranslateTransform x:Name="translateTransform"/>
+                        <TranslateTransform x:Name="ImageTranslate"/>
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
+            
         </Canvas>
-                
-        <!--</ScrollViewer>-->
-
-       
+                <StackPanel Grid.Column="0" x:Name="AllyPanel"></StackPanel>
+        <StackPanel Grid.Column="2" x:Name="EnemyPanel"></StackPanel>
+        
     </Grid>
-    
 </Window>
