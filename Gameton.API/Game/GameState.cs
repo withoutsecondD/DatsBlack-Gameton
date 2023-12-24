@@ -16,7 +16,6 @@ public class GameState
     {
         enemyShips = scan.scan.enemyShips;
         myShips = scan.scan.myShips;
-        myShipsEntities = myShips.Select(s => new MyShipEntity(s)).ToList();
         zone = scan.scan.zone;
         Map = initialMap.Copy();
         Map.DrawAllies(myShips);

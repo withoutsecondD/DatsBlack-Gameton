@@ -14,8 +14,9 @@ public record MyShipEntity : MyShip {
     public ShipController? ShipController;
 
     private DirectionEnum Direction;
+    private Dictionary<int, bool> DirectionLocked;
     
-    public MyShipEntity(MyShip myShip) {
+    public MyShipEntity(MyShip myShip, Dictionary<int, bool> directionLocked) {
         x = myShip.x;
         y = myShip.y;
         hp = myShip.hp;
@@ -33,6 +34,7 @@ public record MyShipEntity : MyShip {
         scanRadius = myShip.scanRadius;
         cannonShootSuccessCount = myShip.cannonShootSuccessCount;
         Direction = Enum.Parse<DirectionEnum>(direction);
+        DirectionLocked = directionLocked;
     }
 
     public void Move(int enemyX, int enemyY, MyShipEntity ally, GameMap map) {
@@ -51,10 +53,14 @@ public record MyShipEntity : MyShip {
 
         if (PredictIslandCollision(map, Enum.Parse<DirectionEnum>(direction))) {
             Rotate(90);
-            ChangeSpeed(-5);
+            ChangeSpeed(-7);
+            DirectionLocked[id] = true;
         }
-        
-        Rotate(CalculateAngle(enemyX, enemyY));
+
+        if (DirectionLocked[id]) {
+            Rotate(CalculateAngle(enemyX, enemyY));
+            DirectionLocked[id] = false;
+        }
     }
 
     public int? CalculateAngle(int enemyX, int enemyY) {
@@ -113,28 +119,28 @@ public record MyShipEntity : MyShip {
 
         switch (direction) {
             case DirectionEnum.east:
-                for (int x = 0; x <= size + maxSpeed; x++) {
+                for (int x = 0; x <= size + 40; x++) {
                     if (map.Data[predictedY, predictedX + x] == GameMapCell.Island)
                         return true;
                 }
 
                 break;
             case DirectionEnum.west:
-                for (int x = 0; x <= size + maxSpeed; x++) {
+                for (int x = 0; x <= size + 40; x++) {
                     if (map.Data[predictedY, predictedX - x] == GameMapCell.Island)
                         return true;
                 }
 
                 break;
             case DirectionEnum.north:
-                for (int y = 0; y <= size + maxSpeed; y++) {
+                for (int y = 0; y <= size + 40; y++) {
                     if (map.Data[predictedY - y, predictedX] == GameMapCell.Island)
                         return true;
                 }
 
                 break;
             case DirectionEnum.south:
-                for (int y = 0; y <= size + maxSpeed; y++) {
+                for (int y = 0; y <= size + 40; y++) {
                     if (map.Data[predictedY + y, predictedX] == GameMapCell.Island)
                         return true;
                 }

@@ -23,8 +23,8 @@ public class BotController : ShipController {
         
             double distance = MyShipEntity.GetDistance(enemyX, enemyY);
 
-            if (distance <= 20) {
-                if (MyShipEntity.cannonCooldown == 0)
+            if (distance <= 30) {
+                if (MyShipEntity.cannonCooldownLeft == 0)
                     MyShipEntity.Shoot(enemyX, enemyY);
             }
             else {
@@ -32,12 +32,8 @@ public class BotController : ShipController {
                 return MyShipEntity.ShipCommand;;
             }
         }
-        // else {
-        //     if (zone != null)
-        //         MyShipEntity.Move(zone.x, zone.y, nearestAlly, map);
-        //     else
-                MyShipEntity.Move(1000, 1000, nearestAlly, map);
-        // }
+        
+        MyShipEntity.Move(zone.x, zone.y, nearestAlly, map);
         
         return MyShipEntity.ShipCommand;
     }
