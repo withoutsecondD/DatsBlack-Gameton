@@ -1,4 +1,5 @@
-﻿using Gameton.DataModels;
+﻿using System.Linq;
+using Gameton.DataModels;
 using Gameton.DataModels.Scan;
 using Gameton.DataModels.ShipCommand;
 
@@ -10,7 +11,8 @@ public record MyShipEntity : MyShip {
     /// It is null if no changes were done to the ship.
     /// </summary>
     public ShipCommand? ShipCommand { get; private set; }
-    
+    public ShipController ShipController;
+
     private DirectionEnum Direction;
     
     public MyShipEntity(MyShip myShip) {
@@ -33,22 +35,30 @@ public record MyShipEntity : MyShip {
         cannonShootSuccessCount = myShip.cannonShootSuccessCount;
     }
 
-    public void MoveTo(int enemyX, int enemyY)
-    {
+    public void Move(int enemyX, int enemyY, MyShipEntity ally, GameMap map) {
         if (Direction == DirectionEnum.south || Direction == DirectionEnum.north) {
-            if (enemyY - y > 5)
+            if (Math.Abs(enemyY - y) > 5)
                 ChangeSpeed(5);
             else
-                ChangeSpeed(enemyY - y - size);
+                ChangeSpeed(Math.Abs(enemyY - y - size));
         }
         else {
-            if (enemyX - x > 5)
+            if (Math.Abs(enemyX - x) > 5)
                 ChangeSpeed(5);
             else
-                ChangeSpeed(enemyX - x - size);
+                ChangeSpeed(Math.Abs(enemyX - x - size));
         }
 
         Rotate(CalculateAngle(enemyX, enemyY));
+
+        if (PredictIslandCollision(map)) {
+            Rotate(90);
+            ChangeSpeed(-5);
+        }
+        
+        if (ally != null)
+            if (PredictAllyCollision(ally))
+                ChangeSpeed(-5);
     }
 
     public int CalculateAngle(int enemyX, int enemyY) {
@@ -74,6 +84,42 @@ public record MyShipEntity : MyShip {
         }
 
         return 0;
+    }
+
+    public MyShipEntity? FindNearestShip(List<MyShipEntity> otherShips) {
+        return otherShips.MinBy(s => GetDistance(s.x, s.y));
+    }
+    
+    public List<MyShipEntity> SearchAllies(List<MyShipEntity> otherShips) {
+        switch (Direction.ToString()) {
+            case "north":
+                return otherShips.Where(s => s.y < this.y).ToList();
+                break;
+            case "south":
+                return otherShips.Where(s => s.y > this.y).ToList();
+                break;
+            case "east":
+                return otherShips.Where(s => s.x > this.x).ToList();
+                break;
+            case "west":
+                return otherShips.Where(s => s.y < this.x).ToList();
+                break;
+        }
+
+        return null;
+    }
+
+    public bool PredictIslandCollision(GameMap map) {
+        (int predictedX, int predictedY) = PredictMovement();
+
+        return map.Data[predictedY, predictedX] == GameMapCell.Island;
+    }   
+    
+    public bool PredictAllyCollision(MyShipEntity ally) {
+        (int predictedX, int predictedY) = PredictMovement();
+        (int predictedAllyX, int predictedAllyY) = ally.PredictMovement();
+
+        return Math.Abs(predictedX - predictedAllyX) < 5 || Math.Abs(predictedY - predictedAllyY) < 5;
     }
     
     public void Shoot(int x, int y) {
