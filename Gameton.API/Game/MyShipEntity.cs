@@ -49,41 +49,40 @@ public record MyShipEntity : MyShip {
                 ChangeSpeed(Math.Abs(enemyX - x - size));
         }
 
-        Rotate(CalculateAngle(enemyX, enemyY));
-
-        if (PredictIslandCollision(map)) {
+        if (PredictIslandCollision(map, Enum.Parse<DirectionEnum>(direction))) {
             Rotate(90);
             ChangeSpeed(-5);
         }
         
-        if (ally != null)
-            if (PredictAllyCollision(ally))
-                ChangeSpeed(-5);
+        Rotate(CalculateAngle(enemyX, enemyY));
     }
 
-    public int CalculateAngle(int enemyX, int enemyY) {
-        if (enemyX - x > 10 || Direction != DirectionEnum.east) {
+    public int? CalculateAngle(int enemyX, int enemyY) {
+        if (enemyX - x > 10 && Direction != DirectionEnum.east) {
             if (Direction == DirectionEnum.south)
                 return -90;
             return 90;
         }
-        if (x - enemyX > 10 || Direction != DirectionEnum.west) {
+        
+        if (x - enemyX > 10 && Direction != DirectionEnum.west) {
             if (Direction == DirectionEnum.north)
                 return -90;
             return 90;
         }
-        if (enemyY - y > 10 || Direction != DirectionEnum.south) {
+        
+        if (enemyY - y > 10 && Direction != DirectionEnum.south) {
             if (Direction == DirectionEnum.west)
                 return -90;
             return 90;
         }
-        if (y - enemyY > 10 || Direction != DirectionEnum.north) {
+        
+        if (y - enemyY > 10 && Direction != DirectionEnum.north) {
             if (Direction == DirectionEnum.east)
                 return -90;
             return 90;
         }
 
-        return 0;
+        return null;
     }
 
     public MyShipEntity? FindNearestShip(List<MyShipEntity> otherShips) {
@@ -109,10 +108,41 @@ public record MyShipEntity : MyShip {
         return null;
     }
 
-    public bool PredictIslandCollision(GameMap map) {
+    public bool PredictIslandCollision(GameMap map, DirectionEnum direction) {
         (int predictedX, int predictedY) = PredictMovement();
 
-        return map.Data[predictedY, predictedX] == GameMapCell.Island;
+        switch (direction) {
+            case DirectionEnum.east:
+                for (int x = 0; x <= size + maxSpeed; x++) {
+                    if (map.Data[predictedY, predictedX + x] == GameMapCell.Island)
+                        return true;
+                }
+
+                break;
+            case DirectionEnum.west:
+                for (int x = 0; x <= size + maxSpeed; x++) {
+                    if (map.Data[predictedY, predictedX - x] == GameMapCell.Island)
+                        return true;
+                }
+
+                break;
+            case DirectionEnum.north:
+                for (int y = 0; y <= size + maxSpeed; y++) {
+                    if (map.Data[predictedY - y, predictedX] == GameMapCell.Island)
+                        return true;
+                }
+
+                break;
+            case DirectionEnum.south:
+                for (int y = 0; y <= size + maxSpeed; y++) {
+                    if (map.Data[predictedY + y, predictedX] == GameMapCell.Island)
+                        return true;
+                }
+
+                break;
+        }
+
+        return false;
     }   
     
     public bool PredictAllyCollision(MyShipEntity ally) {
@@ -125,10 +155,11 @@ public record MyShipEntity : MyShip {
     public void Shoot(int x, int y) {
         if(ShipCommand is null)
             ShipCommand = new();
+        
         ShipCommand.cannonShoot = new CannonShoot(x, y);
     }
 
-    public void Rotate(int angle)
+    public void Rotate(int? angle)
     {
         if (angle > 90 || angle < -90)
             throw new Exception($"can't turn to degree {angle}");
